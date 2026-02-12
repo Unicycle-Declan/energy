@@ -14,12 +14,14 @@ library(knitr)
 ```
 
 ## Renewable Energy dataset
+
 ```{r}
 energy <- read_csv("../../data/IRENA data.csv", skip = 1)
 energy %>% head()
 ```
 
 ## gapminder
+
 ```{r}
 library(gapminder)
 gapminder %>% head
@@ -34,6 +36,7 @@ carbon %>% head
 ```
 
 ## Levelized cost of energy
+
 ```{R}
 url <- 'https://raw.githubusercontent.com/ericmkeen/sewanee_esus/master/02_energy_sector/levelized-cost-of-energy.csv'
 econ <- read_csv(url)
@@ -50,7 +53,7 @@ ggplot(econ,
   geom_hline(yintercept = 0.05, lty = 2) +
   geom_hline(yintercept = 0.18, lty = 2) +
   annotate(geom= 'text',
-           x=1990, 0.2, size = 5, label = 'Range of fossil\n fule costs')
+           x=1990, 0.1, size = 5, label = 'Range of fossil\n fule costs')
   
 ```
 
@@ -58,8 +61,7 @@ ggplot(econ,
 econ%>% 
   filter(year == 2020) %>%
   group_by(source) %>%
-  summarize(cost = mean(cost, na.ra = TRUE)) %>%
+  summarize(cost = mean(cost, na.rm = TRUE)) %>%
   kable
 
 ```
-
