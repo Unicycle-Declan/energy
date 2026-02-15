@@ -5,7 +5,7 @@ date: "2026-02-10"
 output: html_document
 ---
 
-```{r, echo=FALSE, warning=FALSE}
+```{r, echo=FALSE, warning=FALSE, message=FALSE}
 #loading packeges
 library(readr)
 library(dplyr)
@@ -15,35 +15,35 @@ library(knitr)
 
 ## Renewable Energy dataset
 
-```{r}
+```{r, echo=FALSE, warning=FALSE, message=FALSE}
 energy <- read_csv("../../data/IRENA data.csv", skip = 1)
-energy %>% head()
+#energy %>% head()
 ```
 
 ## gapminder
 
-```{r}
+```{r, echo=FALSE, warning=FALSE, message=FALSE}
 library(gapminder)
-gapminder %>% head
+#gapminder %>% head
 ```
 
-```{r}
+```{r, echo=FALSE, warning= FALSE, message=FALSE}
 url <- 'https://nyc3.digitaloceanspaces.com/owid-public/data/co2/owid-co2-data.csv'
   
 carbon <-
   read_csv(url) 
-carbon %>% head
+#carbon %>% head
 ```
 
 ## Levelized cost of energy
 
-```{R}
+```{r, echo=FALSE, warning= FALSE, message=FALSE}
 url <- 'https://raw.githubusercontent.com/ericmkeen/sewanee_esus/master/02_energy_sector/levelized-cost-of-energy.csv'
 econ <- read_csv(url)
-econ %>% head()
+#econ %>% head()
 ```
 
-```{r,warning = FALSE}
+```{r,warning = FALSE, echo=FALSE}
 ggplot(econ,
        aes(x = year, 
            y = cost,
