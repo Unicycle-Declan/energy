@@ -18,6 +18,7 @@ library(knitr)
 ```{r, echo=FALSE, warning=FALSE, message=FALSE}
 energy <- read_csv("../../data/IRENA data.csv", skip = 1)
 #energy %>% head()
+#View(energy)
 ```
 
 ## gapminder
@@ -25,6 +26,7 @@ energy <- read_csv("../../data/IRENA data.csv", skip = 1)
 ```{r, echo=FALSE, warning=FALSE, message=FALSE}
 library(gapminder)
 #gapminder %>% head
+#View(gapminder)
 ```
 
 ```{r, echo=FALSE, warning= FALSE, message=FALSE}
@@ -33,6 +35,7 @@ url <- 'https://nyc3.digitaloceanspaces.com/owid-public/data/co2/owid-co2-data.c
 carbon <-
   read_csv(url) 
 #carbon %>% head
+#View(carbon)
 ```
 
 ## Levelized cost of energy
@@ -41,6 +44,7 @@ carbon <-
 url <- 'https://raw.githubusercontent.com/ericmkeen/sewanee_esus/master/02_energy_sector/levelized-cost-of-energy.csv'
 econ <- read_csv(url)
 #econ %>% head()
+#View(econ)
 ```
 
 ```{r,warning = FALSE, echo=FALSE}
@@ -63,5 +67,76 @@ econ%>%
   group_by(source) %>%
   summarize(cost = mean(cost, na.rm = TRUE)) %>%
   kable
+
+```
+
+```{r, echo=FALSE}
+# using energy dataset
+## find ranges 
+#energy %>% pull(Year) %>% range()
+#energy %>% pull(`Electricity statistics`) %>% range(na.rm = FALSE)
+## join for continents
+#energy_rn <- energy %>% 
+  #rename(country = `Country/area`, year = Year)
+#View(energy_rn)
+#energy_join <- 
+  #left_join(energy_rn, gapminder, by = c('year', 'country'))
+#View(energy_join)
+#energy_join <- energy_join %>% group_by(continent)
+#energy_join %>%
+  #filter(year == c(2000:2024))
+## make faceted graph
+#ggplot(energy_join,
+       #aes(x = year,
+           #y = `Electricity statistics`,
+           #color = continent)) +
+  #geom_path(size =1) +
+  #facet_wrap(~Technology) +
+  #scale_x_continuous(breaks = c(2000,2024)) +
+  #scale_y_discrete(breaks = c(0, 10000))
+
+```
+
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+# gapminder
+## new data frame
+fig_1data <- 
+  data.frame( lifeExp = gapminder %>%
+                           group_by(year) %>% 
+                summarize(mean(lifeExp, na.rm = TRUE),
+                          mean(gdpPercap, na.rm = TRUE))) %>% 
+  rename( year = lifeExp.year, 
+          mean_lifeExp = lifeExp.mean.lifeExp..na.rm...TRUE.,
+          mean_gdpPercap = lifeExp.mean.gdpPercap..na.rm...TRUE.)                
+#View(fig_1data)
+
+## make plot
+scale_factor <- max(fig_1data$mean_gdpPercap) /
+                max(fig_1data$mean_lifeExp)
+
+ggplot(fig_1data,
+       aes(x = year)) +
+  geom_path(color = "green", 
+            aes(y = mean_lifeExp)) +
+  geom_path(color = "orange", 
+            aes(y = mean_gdpPercap/scale_factor)) +
+  scale_y_continuous(name = 'Mean Life Expectancy (green)', sec.axis = sec_axis(
+      ~ . * scale_factor, 'Mean GDP Percapita in USD (orange)')) +
+  labs(title = "Human Progress",
+       subtitle = "Advances in human standard of living since 1950")
+
+```
+
+Since 1950, human standard of living has increased. On average, people are living longer and earning more money. This is due to... 
+
+- Advances in medicine and healthcare 
+
+- Advances in childbirth procedures 
+
+- Advanced manufacturing 
+
+...and much more. All this advancement and progress has come at a cost. 
+
+```{r}
 
 ```
