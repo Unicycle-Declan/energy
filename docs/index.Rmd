@@ -71,6 +71,7 @@ econ%>%
 ```
 
 ```{r, echo=FALSE}
+###FAILED GRAPH###
 # using energy dataset
 ## find ranges 
 #energy %>% pull(Year) %>% range()
@@ -137,6 +138,37 @@ Since 1950, human standard of living has increased. On average, people are livin
 
 ...and much more. All this advancement and progress has come at a cost. 
 
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+# carbon dataset
+fig_2data <- 
+  data.frame(carbon %>% 
+               filter(country == "World") %>%
+               group_by(year) %>% 
+               summarise( totalCO2 = sum(cumulative_co2, na.rm = TRUE)))
+#View(fig_2data)
+
+## make graph
+ggplot(fig_2data,
+       aes(x = year, 
+           y = totalCO2/1000)) +
+  geom_point( size = .2) +
+  geom_vline(xintercept = 1821, lty = 2.5 ) +
+  annotate( geom = 'text',
+            1816, 1000, angle = 90, label = 'first electric motor ') +
+  geom_vline(xintercept = 1859, lty = 2.5 ) +
+  annotate( geom = 'text',
+            1854, 1000, angle = 90, label = 'first oil well ') +
+  geom_vline(xintercept = 1882, lty = 2.5 ) +
+  annotate( geom = 'text',
+            1877, 1000, angle = 90, label = 'first power grid') +
+  geom_vline(xintercept = 1950, lty = 2.5 ) +
+  annotate( geom = 'text',
+            1945, 1000, angle = 90, label = 'comericial plastic popularized') +
+  labs(title = "Exponential Progress and Exponential Consiquences",
+       y = "total CO2 emmited (thousands of tons)")
+```
+
 ```{r}
 
 ```
+
