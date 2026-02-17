@@ -11,6 +11,7 @@ library(readr)
 library(dplyr)
 library(ggplot2)
 library(knitr)
+library(plotly)
 ```
 
 ## Renewable Energy dataset
@@ -128,15 +129,15 @@ ggplot(fig_1data,
 
 ```
 
-Since 1950, human standard of living has increased. On average, people are living longer and earning more money. This is due to... 
+Since 1950, human standard of living has increased. On average, people are living longer and earning more money. This is due to...
 
-- Advances in medicine and healthcare 
+-   Advances in medicine and healthcare
 
-- Advances in childbirth procedures 
+-   Advances in childbirth procedures
 
-- Advanced manufacturing 
+-   Advanced manufacturing
 
-...and much more. All this advancement and progress has come at a cost. 
+...and much more. All this advancement and progress has come at a cost.
 
 ```{r echo=FALSE, message=FALSE, warning=FALSE}
 # carbon dataset
@@ -170,14 +171,16 @@ ggplot(fig_2data,
 
 ```{r echo=FALSE, message=FALSE, warning=FALSE}
 # energy dataset
-energy %>% pull(Year) %>% range
+#energy %>% pull(Year) %>% range
 fig_3data <- data.frame(energy %>% 
   group_by(`Country/area`, Year) %>%
   summarize(total_energy = sum(as.numeric(`Electricity statistics`), na.rm = TRUE))) %>%
-  filter(Year != 2024)
+  filter(Year != 2024) %>%
+  mutate(total_energy = total_energy/1000000)
 fig_3trace <- 
   fig_3data %>%
-  filter(Country.area %in% c('United States of America (the)', 'China', 'India'))
+  filter(Country.area %in% c('United States of America (the)', 'China', 'India')) %>%
+  rename(Country = Country.area) 
 
 #gap_filt <- gapminder %>%
   #filter(year %in% c(2000:2023)) %>%
@@ -193,12 +196,44 @@ ggplot(fig_3data,
        aes( x = Year,
             y = total_energy))+
   geom_point() +
-  geom_path(data = fig_3trace, aes(color = Country.area), size =1)
+  geom_path(data = fig_3trace, aes(color = Country), size =1) +
+  labs(title = "Energetic Nations", y = "Total Energy (millions of GWh)")
 ```
-```{r}
-# energy zoom in
 
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+# energy zoom in
+#econ_filt <- 
+  #econ %>%
+  #filter( country %in% c('United States of America (the)', 'China', 'India'),
+          #year %in% c(2000:2023))
+#gap_filt <- gapminder %>%
+  #filter(year %in% c(2000:2023), country %in% c('United States of America (the)', 'China', 'India'))
+  
+#fig_3trace <- 
+  #fig_3trace %>%
+  #rename(country = Country.area, year = Year)
+#fig_4data <- left_join(fig_3trace, gap_filt, by = c("country", "year")) 
+fig_4data <- energy %>%
+  filter(`Country/area` %in% c('United States of America (the)', 'China', 'India')) %>%
+  mutate(`Electricity statistics` = 
+           as.numeric(na_if(`Electricity statistics`,"-"))) %>%
+  mutate(`Electricity Generated` = `Electricity statistics`/1000) %>%
+  filter(Technology != "Total renewable", Technology != "Total non-renewable")
+  
+#View(fig_4data)
 # make a plot
 
-```
+fig.4 <- ggplot(fig_4data,
+       aes(x = Year,
+           y = `Electricity Generated`,
+           color = Technology)) +
+  geom_point() +
+  geom_path() +
+  facet_wrap(~`Country/area`, nrow = 3) +
+  scale_y_continuous( breaks = c(1000, 3000,5000)) +
+  labs( title = "",
+        y = "Electricity Generation (thousands of GWh)") 
 
+ggplotly(fig.4)
+  
+```
