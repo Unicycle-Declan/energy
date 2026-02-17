@@ -168,7 +168,37 @@ ggplot(fig_2data,
        y = "total CO2 emmited (thousands of tons)")
 ```
 
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+# energy dataset
+energy %>% pull(Year) %>% range
+fig_3data <- data.frame(energy %>% 
+  group_by(`Country/area`, Year) %>%
+  summarize(total_energy = sum(as.numeric(`Electricity statistics`), na.rm = TRUE))) %>%
+  filter(Year != 2024)
+fig_3trace <- 
+  fig_3data %>%
+  filter(Country.area %in% c('United States of America (the)', 'China', 'India'))
+
+#gap_filt <- gapminder %>%
+  #filter(year %in% c(2000:2023)) %>%
+  #rename( Country.area = country, Year = year)
+#View(gap_filt)
+#fig_3data <- left_join(fig_3data, gap_filt, by = c("Country.area", "Year"))
+#fig_3data %>%
+  #mutate(energyPercap = (total_energy/pop)) 
+#View(fig_3data)
+
+# make a grpah
+ggplot(fig_3data,
+       aes( x = Year,
+            y = total_energy))+
+  geom_point() +
+  geom_path(data = fig_3trace, aes(color = Country.area), size =1)
+```
 ```{r}
+# energy zoom in
+
+# make a plot
 
 ```
 
