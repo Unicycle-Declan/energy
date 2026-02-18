@@ -104,11 +104,14 @@ Since 1950, human standard of living has increased drastically. On average, peop
 
 ```{r echo=FALSE, message=FALSE, warning=FALSE}
 # carbon dataset
-fig_2data <- 
-  data.frame(carbon %>% 
-               filter(country == "World") %>%
-               group_by(year) %>% 
-               summarise( totalCO2 = sum(cumulative_co2, na.rm = TRUE)))
+fig_2_data <- carbon %>%
+  filter(country == "World") %>%
+  group_by(year) %>%
+  summarise(
+    total_co2 = sum(cumulative_co2, na.rm = TRUE),
+    .groups = "drop"
+  )
+
 #View(fig_2data)
 
 ## make graph
@@ -129,7 +132,10 @@ ggplot(fig_2data,
   annotate( geom = 'text',
             1945, 1000, angle = 90, label = 'comericial plastic popularized') +
   labs(title = "Exponential Progress and Exponential Consiquences",
-       y = "total CO2 emmited (thousands of tons)")
+       y = "total CO2 emmited (thousands of tons)",
+       x = " ") +
+  theme_minimal()
+
 ```
 
 The industry required to fuel our life stiles emit exponentially more CO~2~ every year. CO~2~ is a greenhouse gas, and thus an over abundance of it in our atmosphere can create positive feedback loops that threaten to destabilize global ecosystems, and even our agriculture. Many industries emit CO~2~, but the energy industry is by far the largest. As our energy use and carbon emissions increase, we need to be rethink how we produce and consume energy.
