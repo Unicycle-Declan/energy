@@ -5,7 +5,7 @@ date: "2026-02-10"
 output: html_document
 ---
 
-```{r, echo=FALSE, warning=FALSE, message=FALSE}
+```{r Load packeges, echo=FALSE, message=FALSE, warning=FALSE}
 #loading packeges
 library(readr)
 library(dplyr)
@@ -14,19 +14,19 @@ library(knitr)
 library(plotly)
 ```
 
-```{r, echo=FALSE, warning=FALSE, message=FALSE}
+```{r energy, echo=FALSE, warning=FALSE, message=FALSE}
 energy <- read_csv("../../data/IRENA data.csv", skip = 1)
 #energy %>% head()
 #View(energy)
 ```
 
-```{r, echo=FALSE, warning=FALSE, message=FALSE}
+```{r gapminder, echo=FALSE, message=FALSE, warning=FALSE}
 library(gapminder)
 #gapminder %>% head
 #View(gapminder)
 ```
 
-```{r, echo=FALSE, warning= FALSE, message=FALSE}
+```{r carbon, echo=FALSE, warning= FALSE, message=FALSE}
 url <- 'https://nyc3.digitaloceanspaces.com/owid-public/data/co2/owid-co2-data.csv'
   
 carbon <-
@@ -35,25 +35,11 @@ carbon <-
 #View(carbon)
 ```
 
-```{r, echo=FALSE, warning= FALSE, message=FALSE}
+```{r econ, echo=FALSE, warning= FALSE, message=FALSE}
 url <- 'https://raw.githubusercontent.com/ericmkeen/sewanee_esus/master/02_energy_sector/levelized-cost-of-energy.csv'
 econ <- read_csv(url)
 #econ %>% head()
 #View(econ)
-```
-
-```{r eval=FALSE, warning=FALSE, include=FALSE}
-ggplot(econ,
-       aes(x = year, 
-           y = cost,
-           color = source)
-       ) +
-  geom_point() +
-  geom_hline(yintercept = 0.05, lty = 2) +
-  geom_hline(yintercept = 0.18, lty = 2) +
-  annotate(geom= 'text',
-           x=1990, 0.1, size = 5, label = 'Range of fossil\n fule costs')
-  
 ```
 
 ```{r eval=FALSE, include=FALSE}
@@ -64,65 +50,46 @@ econ%>%
   kable
 
 ```
-
-```{r eval=FALSE, include=FALSE}
-###FAILED GRAPH###
-# using energy dataset
-## find ranges 
-#energy %>% pull(Year) %>% range()
-#energy %>% pull(`Electricity statistics`) %>% range(na.rm = FALSE)
-## join for continents
-#energy_rn <- energy %>% 
-  #rename(country = `Country/area`, year = Year)
-#View(energy_rn)
-#energy_join <- 
-  #left_join(energy_rn, gapminder, by = c('year', 'country'))
-#View(energy_join)
-#energy_join <- energy_join %>% group_by(continent)
-#energy_join %>%
-  #filter(year == c(2000:2024))
-## make faceted graph
-#ggplot(energy_join,
-       #aes(x = year,
-           #y = `Electricity statistics`,
-           #color = continent)) +
-  #geom_path(size =1) +
-  #facet_wrap(~Technology) +
-  #scale_x_continuous(breaks = c(2000,2024)) +
-  #scale_y_discrete(breaks = c(0, 10000))
-
-```
-
 ## Introduction
 
-```{r echo=FALSE, message=FALSE, warning=FALSE}
-# gapminder
-## new data frame
-fig_1data <- 
-  data.frame( lifeExp = gapminder %>%
-                           group_by(year) %>% 
-                summarize(mean(lifeExp, na.rm = TRUE),
-                          mean(gdpPercap, na.rm = TRUE))) %>% 
-  rename( year = lifeExp.year, 
-          mean_lifeExp = lifeExp.mean.lifeExp..na.rm...TRUE.,
-          mean_gdpPercap = lifeExp.mean.gdpPercap..na.rm...TRUE.)                
-#View(fig_1data)
+```{r fig.1, echo=FALSE, warning=FALSE, message=FALSE}
+# Create summary data
+fig_1_data <- gapminder %>%
+  group_by(year) %>%
+  summarize(
+    mean_lifeExp = mean(lifeExp, na.rm = TRUE),
+    mean_gdpPercap = mean(gdpPercap, na.rm = TRUE),
+    .groups = "drop"
+  )
 
-## make plot
-scale_factor <- max(fig_1data$mean_gdpPercap) /
-                max(fig_1data$mean_lifeExp)
+# Calculate scale factor
+scale_factor <- max(fig_1_data$mean_gdpPercap) / (max(fig_1_data$mean_lifeExp) + 10)
 
-ggplot(fig_1data,
-       aes(x = year)) +
-  geom_path(color = "green", 
-            aes(y = mean_lifeExp)) +
-  geom_path(color = "orange", 
-            aes(y = mean_gdpPercap/scale_factor)) +
-  scale_y_continuous(name = 'Mean Life Expectancy (green)', sec.axis = sec_axis(
-      ~ . * scale_factor, 'Mean GDP Percapita in USD (orange)')) +
-  labs(title = "Human Progress",
-       subtitle = "Advances in human standard of living since 1950")
-
+# Make graph
+ggplot(fig_1_data, aes(x = year)) +
+  geom_path(aes(y = mean_lifeExp), 
+            color = "green", 
+            size = 1) +
+  geom_path(aes(y = mean_gdpPercap / scale_factor), 
+            color = "orange", 
+            size = 1) +
+  scale_y_continuous(
+    name = "Mean Life Expectancy (green)",
+    sec.axis = sec_axis(
+      ~ . * scale_factor,
+      name = "Mean GDP Per Capita in USD (orange)"
+    )
+  ) +
+  labs(
+    title = "Human Progress",
+    subtitle = "Advances in human standard of living since 1950",
+    x = " "
+  ) +
+  theme_minimal() +
+  theme(
+    plot.title = element_text(face = "bold", size = 14),
+    axis.title = element_text(size = 11)
+  )
 ```
 
 Since 1950, human standard of living has increased drastically. On average, people are living longer and earning more money. This is due to...
@@ -165,7 +132,7 @@ ggplot(fig_2data,
        y = "total CO2 emmited (thousands of tons)")
 ```
 
-The industry required to fuel our life stiles emit exponentially more CO~2~ every year. CO~2~ is a greenhouse gas, and thus an over abundance of it in our atmosphere can create positive feedback loops that threaten to destabilize global ecosystems, and even our agriculture. Many industries emit CO~2~, but the energy industry is by far the largest. As our energy use and carbon emissions increase, we need to be rethink how we produce and consume use energy.
+The industry required to fuel our life stiles emit exponentially more CO~2~ every year. CO~2~ is a greenhouse gas, and thus an over abundance of it in our atmosphere can create positive feedback loops that threaten to destabilize global ecosystems, and even our agriculture. Many industries emit CO~2~, but the energy industry is by far the largest. As our energy use and carbon emissions increase, we need to be rethink how we produce and consume energy.
 
 ## Energy
 
@@ -178,7 +145,8 @@ fig_3data <- data.frame(energy %>%
   group_by(`Country/area`, Year) %>%
   summarize(total_energy = sum(as.numeric(`Electricity statistics`), na.rm = TRUE))) %>%
   filter(Year != 2024) %>%
-  mutate(total_energy = total_energy/1000000)
+  mutate(total_energy = total_energy/1000000) 
+
 fig_3trace <- 
   fig_3data %>%
   filter(Country.area %in% c('United States of America (the)', 'China', 'India')) %>%
@@ -191,17 +159,18 @@ fig_3trace <-
 #fig_3data <- left_join(fig_3data, gap_filt, by = c("Country.area", "Year"))
 #fig_3data %>%
   #mutate(energyPercap = (total_energy/pop)) 
-#View(fig_3data)
-
 # make a grpah
-fig.3 <- ggplot(fig_3data,
+fig.3 <-
+  ggplot(fig_3data,
        aes( x = Year,
             y = total_energy))+
   geom_point() +
   geom_path(data = fig_3trace, aes(color = Country), size =1) +
   labs(title = "Energetic Nations", y = "Total Energy (millions of GWh)")
+
 ggplotly(fig.3)
 ```
+*black dots represent countries, lines trace the progression of standout countries*
 
 The USA became a manufacturing superpower in the first half of the 20th century. Since then it has outsourced much of its production, but still has heavy energy demands. 
 
@@ -241,5 +210,20 @@ fig.4 <- ggplot(fig_4data,
         y = "Electricity Generation (thousands of GWh)") 
 
 ggplotly(fig.4)
+  
+```
+
+
+```{r eval=FALSE, warning=FALSE, include=FALSE}
+ggplot(econ,
+       aes(x = year, 
+           y = cost,
+           color = source)
+       ) +
+  geom_point() +
+  geom_hline(yintercept = 0.05, lty = 2) +
+  geom_hline(yintercept = 0.18, lty = 2) +
+  annotate(geom= 'text',
+           x=1990, 0.1, size = 5, label = 'Range of fossil\n fule costs')
   
 ```
