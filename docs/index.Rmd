@@ -37,7 +37,8 @@ carbon <-
 
 ```{r econ, echo=FALSE, warning= FALSE, message=FALSE}
 url <- 'https://raw.githubusercontent.com/ericmkeen/sewanee_esus/master/02_energy_sector/levelized-cost-of-energy.csv'
-econ <- read_csv(url)
+econ <- 
+  read_csv(url)
 #econ %>% head()
 #View(econ)
 ```
@@ -50,6 +51,7 @@ econ%>%
   kable
 
 ```
+
 ## Introduction
 
 ```{r fig.1, echo=FALSE, warning=FALSE, message=FALSE}
@@ -103,18 +105,19 @@ Since 1950, human standard of living has increased drastically. On average, peop
 ...and much more. All this advancement and progress has come at a cost.
 
 ```{r echo=FALSE, message=FALSE, warning=FALSE}
-# carbon dataset
-fig_2_data <- carbon %>%
+# Funnel dataset
+fig_2data <- 
+  carbon %>%
   filter(country == "World") %>%
   group_by(year) %>%
   summarise(
-    total_co2 = sum(cumulative_co2, na.rm = TRUE),
+    totalCO2 = sum(cumulative_co2, na.rm = TRUE),
     .groups = "drop"
   )
 
 #View(fig_2data)
 
-## make graph
+## Make graph
 ggplot(fig_2data,
        aes(x = year, 
            y = totalCO2/1000)) +
@@ -145,79 +148,85 @@ The industry required to fuel our life stiles emit exponentially more CO~2~ ever
 Civilizations are defined by how they use energy, and human energy use is currently at an all time high. Three nations are particularly high in energy use, namely the USA, China, and India.
 
 ```{r echo=FALSE, message=FALSE, warning=FALSE}
-# energy dataset
-#energy %>% pull(Year) %>% range
-fig_3data <- data.frame(energy %>% 
-  group_by(`Country/area`, Year) %>%
-  summarize(total_energy = sum(as.numeric(`Electricity statistics`), na.rm = TRUE))) %>%
+# Funnel dataset
+fig_3data <- 
+  data.frame(
+    energy %>% 
+      group_by(`Country/area`, Year) %>%
+      summarize(total_energy = sum(as.numeric(`Electricity statistics`), na.rm = TRUE))) %>%
   filter(Year != 2024) %>%
-  mutate(total_energy = total_energy/1000000) 
+  mutate(total_energy = total_energy/1000) 
 
 fig_3trace <- 
   fig_3data %>%
   filter(Country.area %in% c('United States of America (the)', 'China', 'India')) %>%
   rename(Country = Country.area) 
 
-#gap_filt <- gapminder %>%
-  #filter(year %in% c(2000:2023)) %>%
-  #rename( Country.area = country, Year = year)
-#View(gap_filt)
-#fig_3data <- left_join(fig_3data, gap_filt, by = c("Country.area", "Year"))
-#fig_3data %>%
-  #mutate(energyPercap = (total_energy/pop)) 
-# make a grpah
+# Make a grpaph
 fig.3 <-
   ggplot(fig_3data,
        aes( x = Year,
-            y = total_energy))+
+            y = total_energy)
+       )+
   geom_point() +
-  geom_path(data = fig_3trace, aes(color = Country), size =1) +
-  labs(title = "Energetic Nations", y = "Total Energy (millions of GWh)")
+  geom_path(data = fig_3trace, 
+            aes(color = Country), 
+            size =1
+            ) +
+  labs(title = "Energetic Nations", 
+       y = "Total Energy (thousands of GWh)",
+       x = " "
+       )
 
+# Make an interactive graph
 ggplotly(fig.3)
+
 ```
+
 *black dots represent countries, lines trace the progression of standout countries*
 
-The USA became a manufacturing superpower in the first half of the 20th century. Since then it has outsourced much of its production, but still has heavy energy demands. 
+The USA became a manufacturing superpower in the first half of the 20th century. Since then it has outsourced much of its production, but still has heavy energy demands. China, and more recently India, have also increased their energy production for manufacturing. lets take a look at how there countries produce their energy.
 
-China surpassed the USA in energy production in 2011. Due to its colossal population, china became a manufacturing superpower. As 
 ```{r echo=FALSE, message=FALSE, warning=FALSE}
-# energy zoom in
-#econ_filt <- 
-  #econ %>%
-  #filter( country %in% c('United States of America (the)', 'China', 'India'),
-          #year %in% c(2000:2023))
-#gap_filt <- gapminder %>%
-  #filter(year %in% c(2000:2023), country %in% c('United States of America (the)', 'China', 'India'))
-  
-#fig_3trace <- 
-  #fig_3trace %>%
-  #rename(country = Country.area, year = Year)
-#fig_4data <- left_join(fig_3trace, gap_filt, by = c("country", "year")) 
-fig_4data <- energy %>%
-  filter(`Country/area` %in% c('United States of America (the)', 'China', 'India')) %>%
+# Funnel datset
+fig_4data <- 
+  energy %>%
+  filter(
+    `Country/area` %in% c('United States of America (the)', 'China', 'India'),
+    Technology != "Total renewable", 
+    Technology != "Total non-renewable"
+         ) %>%
   mutate(`Electricity statistics` = 
-           as.numeric(na_if(`Electricity statistics`,"-"))) %>%
-  mutate(`Electricity Generated` = `Electricity statistics`/1000) %>%
-  filter(Technology != "Total renewable", Technology != "Total non-renewable")
+           as.numeric(na_if(`Electricity statistics`,"-")),
+         `Electricity Generated` = `Electricity statistics`/1000) %>%
+  rename(Source = Technology)
   
 #View(fig_4data)
-# make a plot
 
-fig.4 <- ggplot(fig_4data,
+# Make a graph
+fig.4 <- 
+  ggplot(fig_4data,
        aes(x = Year,
            y = `Electricity Generated`,
-           color = Technology)) +
+           color = Source
+           )
+       ) +
   geom_point() +
   geom_path() +
-  facet_wrap(~`Country/area`, nrow = 3) +
-  scale_y_continuous( breaks = c(1000, 3000,5000)) +
-  labs( title = "",
-        y = "Electricity Generation (thousands of GWh)") 
+  facet_wrap(~`Country/area`, 
+             nrow = 3
+             ) +
+  scale_y_continuous( breaks = c(1000, 3000,5000)
+                      ) +
+  labs( title = "Energy Source Breakdown",
+        y = "Electricity Generation (thousands of GWh)"
+        ) 
 
+# Make an interactive graph
 ggplotly(fig.4)
   
 ```
+
 
 
 ```{r eval=FALSE, warning=FALSE, include=FALSE}
