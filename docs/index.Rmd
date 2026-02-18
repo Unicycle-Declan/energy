@@ -155,7 +155,7 @@ fig_3data <-
       group_by(`Country/area`, Year) %>%
       summarize(total_energy = sum(as.numeric(`Electricity statistics`), na.rm = TRUE))) %>%
   filter(Year != 2024) %>%
-  mutate(total_energy = total_energy/1000) 
+  mutate(total_energy = total_energy/1000000) 
 
 fig_3trace <- 
   fig_3data %>%
@@ -174,7 +174,7 @@ fig.3 <-
             size =1
             ) +
   labs(title = "Energetic Nations", 
-       y = "Total Energy (thousands of GWh)",
+       y = "Total Energy (millions of GWh)",
        x = " "
        )
 
@@ -187,7 +187,7 @@ ggplotly(fig.3)
 
 The USA became a manufacturing superpower in the first half of the 20th century. Since then it has outsourced much of its production, but still has heavy energy demands. China, and more recently India, have also increased their energy production for manufacturing. lets take a look at how there countries produce their energy.
 
-```{r echo=FALSE, message=FALSE, warning=FALSE}
+```{r ,fig.width=14, fig.height=10, out.width="100%", echo=FALSE, message=FALSE, warning=FALSE}
 # Funnel datset
 fig_4data <- 
   energy %>%
@@ -198,7 +198,7 @@ fig_4data <-
          ) %>%
   mutate(`Electricity statistics` = 
            as.numeric(na_if(`Electricity statistics`,"-")),
-         `Electricity Generated` = `Electricity statistics`/1000) %>%
+         `Electricity Generated` = `Electricity statistics`/1000000) %>%
   rename(Source = Technology)
   
 #View(fig_4data)
@@ -208,18 +208,17 @@ fig.4 <-
   ggplot(fig_4data,
        aes(x = Year,
            y = `Electricity Generated`,
-           color = Source
+           fill = Source
            )
        ) +
-  geom_point() +
-  geom_path() +
+  geom_area() +
   facet_wrap(~`Country/area`, 
              nrow = 3
              ) +
-  scale_y_continuous( breaks = c(1000, 3000,5000)
+  scale_y_continuous( breaks = c(1, 3,5)
                       ) +
   labs( title = "Energy Source Breakdown",
-        y = "Electricity Generation (thousands of GWh)"
+        y = "Electricity Generation (millions of GWh)"
         ) 
 
 # Make an interactive graph
@@ -227,7 +226,9 @@ ggplotly(fig.4)
   
 ```
 
+*to look at an individual energy source, double click the source in the legend*
 
+from the above graph it is evident that fossile fules are
 
 ```{r eval=FALSE, warning=FALSE, include=FALSE}
 ggplot(econ,
