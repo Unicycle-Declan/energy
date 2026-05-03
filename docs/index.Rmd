@@ -5,8 +5,7 @@ date: "2026-02-10"
 output: html_document
 ---
 
-```{r Load packeges, echo=FALSE, message=FALSE, warning=FALSE}
-#loading packeges
+```{r Library, echo=FALSE, message=FALSE, warning=FALSE}
 library(readr)
 library(dplyr)
 library(ggplot2)
@@ -14,42 +13,22 @@ library(knitr)
 library(plotly)
 ```
 
-```{r energy, echo=FALSE, warning=FALSE, message=FALSE}
+```{r load datasets, echo=FALSE, warning=FALSE, message=FALSE}
+# energy ----
 energy <- read_csv("../../data/IRENA data.csv", skip = 1)
-#energy %>% head()
-#View(energy)
-```
 
-```{r gapminder, echo=FALSE, message=FALSE, warning=FALSE}
+# gapminder ----
 library(gapminder)
-#gapminder %>% head
-#View(gapminder)
-```
 
-```{r carbon, echo=FALSE, warning= FALSE, message=FALSE}
+# carbon ----
 url <- 'https://nyc3.digitaloceanspaces.com/owid-public/data/co2/owid-co2-data.csv'
-  
-carbon <-
+  carbon <-
   read_csv(url) 
-#carbon %>% head
-#View(carbon)
-```
-
-```{r econ, echo=FALSE, warning= FALSE, message=FALSE}
+  
+# econ ----
 url <- 'https://raw.githubusercontent.com/ericmkeen/sewanee_esus/master/02_energy_sector/levelized-cost-of-energy.csv'
 econ <- 
   read_csv(url)
-#econ %>% head()
-#View(econ)
-```
-
-```{r eval=FALSE, include=FALSE}
-econ%>% 
-  filter(year == 2020) %>%
-  group_by(source) %>%
-  summarize(cost = mean(cost, na.rm = TRUE)) %>%
-  kable
-
 ```
 
 ## Introduction
@@ -141,7 +120,7 @@ ggplot(fig_2data,
 
 ```
 
-The industry required to fuel our life stiles emit exponentially more CO~2~ every year. CO~2~ is a greenhouse gas, and thus an over abundance of it in our atmosphere can create positive feedback loops that threaten to destabilize global ecosystems, and even our agriculture. Many industries emit CO~2~, but the energy industry is by far the largest. As our energy use and carbon emissions increase, we need to be rethink how we produce and consume energy.
+The industry required to fuel our lifestyles emit exponentially more CO~2~ every year. CO~2~ is a greenhouse gas, and thus an over abundance of it in our atmosphere can create positive feedback loops that threaten to destabilize global ecosystems, and even our agriculture. Many industries emit CO~2~, but the energy industry is by far the largest. As our energy use and carbon emissions increase, we need to be rethink how we produce and consume energy.
 
 ## Energy
 
@@ -155,16 +134,16 @@ fig_3data <-
       group_by(`Country/area`, Year) %>%
       summarize(total_energy = sum(as.numeric(`Electricity statistics`), na.rm = TRUE))) %>%
   filter(Year != 2024) %>%
-  mutate(total_energy = total_energy/1000000) 
+  mutate(total_energy = total_energy/1000000)
 
 fig_3trace <- 
   fig_3data %>%
   filter(Country.area %in% c('United States of America (the)', 'China', 'India')) %>%
   rename(Country = Country.area) 
 
-# Make a grpaph
+# Make a graph
 fig.3 <-
-  ggplot(fig_3data,
+  ggplot(fig_3data %>% group_by(Country.area),
        aes( x = Year,
             y = total_energy)
        )+
@@ -183,7 +162,7 @@ ggplotly(fig.3)
 
 ```
 
-*black dots represent countries, lines trace the progression of standout countries*
+*black dots represent countries total energy production for a year, lines trace the progression of standout countries*
 
 The USA became a manufacturing superpower in the first half of the 20th century. Since then it has outsourced much of its production, but still has heavy energy demands. China, and more recently India, have also increased their energy production for manufacturing. lets take a look at how there countries produce their energy.
 
@@ -200,8 +179,6 @@ fig_4data <-
            as.numeric(na_if(`Electricity statistics`,"-")),
          `Electricity Generated` = `Electricity statistics`/1000000) %>%
   rename(Source = Technology)
-  
-#View(fig_4data)
 
 # Make a graph
 fig.4 <- 
@@ -228,10 +205,11 @@ ggplotly(fig.4)
 
 *to look at an individual energy source, double click the source in the legend*
 
-from the above graph it is evident that fossile fules are
+From the above graph it is evident that fossil fuels, especially coal, are the most common fuel sources for power plants. Coal is useful because it is abundant and cheep, however it releases more CO~2~ than any of the other fuels.
 
-```{r eval=FALSE, warning=FALSE, include=FALSE}
-ggplot(econ,
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+
+ggplotly(ggplot(econ,
        aes(x = year, 
            y = cost,
            color = source)
@@ -241,5 +219,17 @@ ggplot(econ,
   geom_hline(yintercept = 0.18, lty = 2) +
   annotate(geom= 'text',
            x=1990, 0.1, size = 5, label = 'Range of fossil\n fule costs')
-  
+  )
+
 ```
+
+Fortunately, green energy sources like wind turbines and photovoltaics are becoming less and less expensive. As green energy prices continue to decrease, it becomes possible to replace old coal burning power plants with renewable energy sources. This will be critical because...
+
+1. decreased greenhouse gas emissions
+
+2. energy diversity and independence
+
+With resent global conflicts like the Ukraine war and the Iran war, global energy supply lines were disrupted and caused economic problems in countries that had no part in the war. If these countries were able to switch to green renewable energy sources, these energy supply line disruptions wouldn't be an issue. The use of renewable sources forces nations to diversify energy production which makes it more stable. 
+
+By switching to cheaper renewable energy sources, we can protect our economies from global disruptions, prevent environmental catastrophe cause by climate change, and still prosper in our high energy lifestyle. 
+
