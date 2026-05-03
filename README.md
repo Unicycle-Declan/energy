@@ -1,3 +1,2 @@
 # Human Progress and Energy
-This story investigates how human progress requires more and more energy, and how this creates a sustainible develupment delema. 
-[Click here](https://unicycle-declan.github.io/energy/) to read.
+Human progress has been built off of energy infrastructure, and our current infrastructure relies mostly fossil fuels to produce electricity. This is problematic because it releases lots of greenhouses gasses which lead to environmental problems. It is also problematic because the global supply chains that provide fossil fuels are fragile. Read about how renewable energy sources can solve both of these problems [here](https://unicycle-declan.github.io/energy/)
